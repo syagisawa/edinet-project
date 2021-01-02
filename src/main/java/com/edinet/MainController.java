@@ -63,17 +63,16 @@ public class MainController {
 
 	  // リクエスト実行
 	  HttpURLConnection con = (HttpURLConnection) url.openConnection();
-      BufferedReader in = new BufferedReader(
-    		  new InputStreamReader(con.getInputStream()));
-      String inputLine;
-      StringBuilder sb = new StringBuilder();
-      // リクエストの結果を取り出す
-      while ((inputLine = in.readLine()) != null) {
-          sb.append(inputLine);
-      }
-      in.close();
+	  BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+	  String inputLine;
+	  StringBuilder sb = new StringBuilder();
+	  // リクエストの結果を取り出す
+	  while ((inputLine = in.readLine()) != null) {
+		  sb.append(inputLine);
+	  }
+	  in.close();
 
-      // JSON -> Java
+	  // JSON -> Java
 	  ObjectMapper mapper = new ObjectMapper();
 	  DocumentIdList docIdList = mapper.readValue(sb.toString(), DocumentIdList.class);
 
