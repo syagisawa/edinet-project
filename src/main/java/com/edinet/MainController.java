@@ -47,22 +47,28 @@ public class MainController {
 	  // 日付フォーマット(yyyy-MM-dd形式)
 	  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-
 	  // EdinetAPIのURL
 	  String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";
 	  // 書類ID一覧取得
 	  String reqGetDocIdList = "documents.json";
 	  // リクエストする日付
-//	  String reqDate = "date=" + sdf.format(date.getTime());
-	  String reqDate = "date=2019-04-16"; // test
+//	  String reqDate = sdf.format(date.getTime());
+	  String reqDate = "2020-12-09"; // TODO:確認用。あとで消す
 	  // Getするドキュメントタイプ(type: 1 でメタデータのみ、 2 で提出書類一覧およびメタデータを取得)
 	  String reqDocType = "type=2";
-	  // URL生成
-	  String docIdListUrl = baseUrl + reqGetDocIdList + "?" + reqDate + "&" + reqDocType;
-	  URL url = new URL(docIdListUrl);
+
+	  // 書類ID一覧取得用URL生成
+	  String docIdListUrlStr = baseUrl + reqGetDocIdList
+			  + "?" + "date=" + reqDate + "&" + reqDocType;
+	  URL docIdListUrl = new URL(docIdListUrlStr);
 
 	  // リクエスト実行
-	  HttpURLConnection con = (HttpURLConnection) url.openConnection();
+	  HttpURLConnection con = (HttpURLConnection) docIdListUrl.openConnection();
+
+	  if(con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+		  return "処理中止";
+	  }
+
 	  BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 	  String inputLine;
 	  StringBuilder sb = new StringBuilder();
@@ -76,22 +82,35 @@ public class MainController {
 	  ObjectMapper mapper = new ObjectMapper();
 	  DocumentIdList docIdList = mapper.readValue(sb.toString(), DocumentIdList.class);
 
+	  // 書類提出件数が0件だったら終了
+	  if(docIdList.getMetadata().getResultset().getCount() == 0) {
+		  return "0件でした！処理終了！";
+	  }
+
+	  // 書類リストを取り出す
 	  List<Result> list = new ArrayList<Result>();
 	  list = docIdList.getResults();
 
-	  // 書類IDを取り出す
-	  for(Result result : list) {
-		  System.out.println(result.getDocID());
-	  }
+	  // 日付ディレクトリを作成
+//	  File dir = new File(reqDate);
+//	  dir.mkdir();
+//	  System.out.println(dir.getAbsolutePath()); // TODO:確認用。あとで消す
 
-	  // 書類Zip取得処理
-	  // 書類ID
-	  String docId = null;
+	  //-- 書類Zip取得処理
 	  // 書類取得
 	  String reqGetDoc = "documents";
-	  // 書類データ取得URL生成
-	  String getDocUrl = baseUrl + reqGetDoc + "/" + docId + "?" + reqDocType;
 
+
+	  // 書類リストから書類IDを取り出す
+	  for(Result result : list) {
+		  System.out.println(result.getDocID());
+		  // 書類データ取得URL生成
+		  String getDocUrlStr = baseUrl + reqGetDoc + "/" + result.getDocID() + "?" + reqDocType;
+		  URL getDocUrl = new URL(getDocUrlStr);
+
+	  }
+
+//	  dir.delete();
 	  return "Success!";
   }
 }
