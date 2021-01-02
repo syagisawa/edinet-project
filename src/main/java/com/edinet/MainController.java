@@ -6,12 +6,18 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.edinet.jacson.DocumentIdList;
+import com.edinet.jacson.Result;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller // This means that this class is a Controller
 @RequestMapping(path="/edinet") // This means URL's start with /demo (after Application path)
@@ -42,27 +48,51 @@ public class MainController {
 	  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 
-	  // 書類取得APIのURL
-	  String baseURL = "https://disclosure.edinet-fsa.go.jp/api/v1/documents.json";
+	  // EdinetAPIのURL
+	  String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";
+	  // 書類ID一覧取得
+	  String reqGetDocIdList = "documents.json";
 	  // リクエストする日付
-	  String requestDate = "date=" + sdf.format(date.getTime());
+//	  String reqDate = "date=" + sdf.format(date.getTime());
+	  String reqDate = "date=2019-04-16"; // test
 	  // Getするドキュメントタイプ(type: 1 でメタデータのみ、 2 で提出書類一覧およびメタデータを取得)
-	  String requestDocType = "type=2";
+	  String reqDocType = "type=2";
 	  // URL生成
-	  String getDocListUrl = baseURL + "?" + requestDate + "&" + requestDocType;
-	  URL url = new URL(getDocListUrl);
+	  String docIdListUrl = baseUrl + reqGetDocIdList + "?" + reqDate + "&" + reqDocType;
+	  URL url = new URL(docIdListUrl);
 
+	  // リクエスト実行
 	  HttpURLConnection con = (HttpURLConnection) url.openConnection();
       BufferedReader in = new BufferedReader(
     		  new InputStreamReader(con.getInputStream()));
       String inputLine;
-
+      StringBuilder sb = new StringBuilder();
+      // リクエストの結果を取り出す
       while ((inputLine = in.readLine()) != null) {
-          System.out.println(inputLine);
+          sb.append(inputLine);
       }
       in.close();
 
-	return "Success!";
+      // JSON -> Java
+	  ObjectMapper mapper = new ObjectMapper();
+	  DocumentIdList docIdList = mapper.readValue(sb.toString(), DocumentIdList.class);
 
+	  List<Result> list = new ArrayList<Result>();
+	  list = docIdList.getResults();
+
+	  // 書類IDを取り出す
+	  for(Result result : list) {
+		  System.out.println(result.getDocID());
+	  }
+
+	  // 書類Zip取得処理
+	  // 書類ID
+	  String docId = null;
+	  // 書類取得
+	  String reqGetDoc = "documents";
+	  // 書類データ取得URL生成
+	  String getDocUrl = baseUrl + reqGetDoc + "/" + docId + "?" + reqDocType;
+
+	  return "Success!";
   }
 }
