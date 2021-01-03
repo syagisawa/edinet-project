@@ -1,6 +1,10 @@
 package com.edinet;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -55,11 +59,11 @@ public class MainController {
 //	  String reqDate = sdf.format(date.getTime());
 	  String reqDate = "2020-12-09"; // TODO:確認用。あとで消す
 	  // Getするドキュメントタイプ(type: 1 でメタデータのみ、 2 で提出書類一覧およびメタデータを取得)
-	  String reqDocType = "type=2";
+	  String reqDocIdType = "type=2";
 
 	  // 書類ID一覧取得用URL生成
 	  String docIdListUrlStr = baseUrl + reqGetDocIdList
-			  + "?" + "date=" + reqDate + "&" + reqDocType;
+			  + "?" + "date=" + reqDate + "&" + reqDocIdType;
 	  URL docIdListUrl = new URL(docIdListUrlStr);
 
 	  // リクエスト実行
@@ -99,15 +103,38 @@ public class MainController {
 	  //-- 書類Zip取得処理
 	  // 書類取得
 	  String reqGetDoc = "documents";
-
+	  String reqDocType = "type=1";
+	  String zipName = null;
+	  // Read Data
+	  byte[] b = new byte[4096];
+	  int readByte = 0;
 
 	  // 書類リストから書類IDを取り出す
 	  for(Result result : list) {
-		  System.out.println(result.getDocID());
+
+		  String docId = result.getDocID();
 		  // 書類データ取得URL生成
-		  String getDocUrlStr = baseUrl + reqGetDoc + "/" + result.getDocID() + "?" + reqDocType;
+		  String getDocUrlStr = baseUrl + reqGetDoc + "/" + docId + "?" + reqDocType;
 		  URL getDocUrl = new URL(getDocUrlStr);
 
+		  HttpURLConnection conn = (HttpURLConnection) getDocUrl.openConnection();
+		  zipName = docId + ".zip";
+
+		  DataInputStream dataInStream = new DataInputStream(conn.getInputStream());
+		  DataOutputStream dataOutStream =
+				  new DataOutputStream(
+						  new BufferedOutputStream(
+								  new FileOutputStream(zipName)
+						  )
+				  );
+		  //
+		  while (-1 != (readByte = dataInStream.read(b))) {
+			  dataOutStream.write(b, 0, readByte);
+		  }
+
+		  // Close Stream
+		  dataInStream.close();
+		  dataOutStream.close();
 	  }
 
 //	  dir.delete();
