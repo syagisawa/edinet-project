@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "metadata",
     "results"
 })
-public class DocumentIdList {
+public class DocumentInfoList {
 
     @JsonProperty("metadata")
     private Metadata metadata;

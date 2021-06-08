@@ -2,10 +2,12 @@ plugins {
 	id 'org.springframework.boot' version '2.4.1'
 	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 	id 'java'
+	id 'application'
+	id 'war'
 }
 
 group = 'com.edinet'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = '1.8'
 
 repositories {
@@ -22,6 +24,16 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.11.2'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.2'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    testImplementation 'org.mockito:mockito-core:3.6.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.6.0'
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
 }
 
 test {

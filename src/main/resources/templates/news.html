@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>
+			WCB Cafe - NEWS
+		</title>
+		<meta name="description" content="ブレンドコーヒーとヘルシーなオーガニックフードを提供するカフェ">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Philosopher">
+		<link rel="stylesheet" th:href="@{/css/common.css}">
+		<link rel="stylesheet" th:href="@{/css/body.css}">
+		<!-- favicon -->
+		<link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+	</head>
+
+	<body>
+		<div id="news" class="big-bg">
+			<div th:replace="index :: header">
+			</div>
+			<div class="wrapper">
+				<h2 class="page-title">
+					NEWS
+				</h2>
+			</div>
+		</div> <!-- /#home -->
+		<div class="news-contents wrapper">
+			<article>
+				<header class="post-info">
+					<h2 class="post-title">
+						店内ギャラリーの絵が新しくなりました
+					</h2>
+					<p class="post-date">
+						3/30
+						<span>
+							2019
+						</span>
+					</p>
+					<p class="post-cat">
+						カテゴリー：お店の紹介
+					</p>
+				</header>
+				<img alt="店内の様子" th:src="@{/images/wall.jpg}">
+				<p>
+					体に優しい自然食を提供する、WCB CAFE。無添加の食材を利用したメニューが特徴です。
+					美味しいブレンドコーヒーとヘルシーなオーガニックフードで体の内側から癒されてください。
+					体に優しい自然食を提供する、WCB CAFE。無添加の食材を利用したメニューが特徴です。
+					美味しいブレンドコーヒーとヘルシーなオーガニックフードで体の内側から癒されてください。
+				</p>
+				<p>
+					体に優しい自然食を提供する、WCB CAFE。無添加の食材を利用したメニューが特徴です。
+					美味しいブレンドコーヒーとヘルシーなオーガニックフードで体の内側から癒されてください。
+					体に優しい自然食を提供する、WCB CAFE。無添加の食材を利用したメニューが特徴です。
+					美味しいブレンドコーヒーとヘルシーなオーガニックフードで体の内側から癒されてください。
+					体に優しい自然食を提供する、WCB CAFE。無添加の食材を利用したメニューが特徴です。
+					美味しいブレンドコーヒーとヘルシーなオーガニックフードで体の内側から癒されてください。
+				</p>
+				<p>
+					体に優しい自然食を提供する、WCB CAFE。
+				</p>
+			</article>
+			<aside>
+				<h3 class="sub-title">
+					カテゴリー
+				</h3>
+				<ul class="sub-menu">
+					<li>
+						<a href="#">
+							お店の紹介
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							期間限定メニュー
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							イベント
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							お客様との会話
+						</a>
+					</li>
+				</ul>
+
+				<h3 class="sub-title">
+					このお店について
+				</h3>
+				<p>
+					体に優しい自然食を提供する、WCB CAFE。無添加の食材を利用したメニューが特徴です。
+					美味しいブレンドコーヒーとヘルシーなオーガニックフードで体の内側から癒されてください。
+				</p>
+			</aside>
+		</div><!-- /.news-contents -->
+		<div th:replace="index :: footer">
+		</div>
+	</body>
+</html>
