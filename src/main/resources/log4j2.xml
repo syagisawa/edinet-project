@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Properties>
+		<Property name="filename">edinet-${date:yyyyMMdd}.log</Property>
+	</Properties>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{DEFAULT_MICROS} %-5level %c{1}.%M %msg%n"/>
+		</Console>
+		<File name="fileAppender" fileName="${filename}">
+            <PatternLayout pattern="%d{yyyy/MM/dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n%ex"/>
+        </File>
+	</Appenders>
+	<Loggers>
+		<Root level="debug">
+			<AppenderRef ref="Console"/>
+			<AppenderRef ref="fileAppender"/>
+		</Root>
+	</Loggers>
+</Configuration>

@@ -1,4 +1,4 @@
-package com.edinet.model;
+package com.domain.models;
 
 public class Company {
 	// 会社コード

@@ -1,7 +1,14 @@
-package com.edinet.model;
+package com.domain.models;
 
-public class Revenue {
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "revenue")
+public class RevenueEntity {
 	// 会社コード
+	@Id
 	private String companyCode;
 	// 期開始日
 	private String startPeriodDate;
@@ -11,6 +18,7 @@ public class Revenue {
 	private String 	operatingRevenue;
 	// 経常利益
 	private String ordinaryIncome;
+
 
 	public String getCompanyCode() {
 		return companyCode;

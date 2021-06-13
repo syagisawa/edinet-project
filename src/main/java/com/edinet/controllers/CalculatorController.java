@@ -1,4 +1,4 @@
-package com.edinet;
+package com.edinet.controllers;
 
 public class CalculatorController {
 

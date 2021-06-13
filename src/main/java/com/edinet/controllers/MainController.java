@@ -1,4 +1,4 @@
-package com.edinet;
+package com.edinet.controllers;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -23,10 +23,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,17 +39,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.domain.models.AssetEntity;
+import com.domain.models.CompanyEntity;
+import com.domain.models.RevenueEntity;
+import com.domain.services.AssetService;
+import com.domain.services.CompanyService;
+import com.domain.services.RevenueService;
 import com.edinet.jacson.DocumentInfoList;
 import com.edinet.jacson.Result;
-import com.edinet.model.AssetEntity;
-import com.edinet.model.CompanyEntity;
-import com.edinet.model.RevenueEntity;
-import com.edinet.service.AssetService;
-import com.edinet.service.CompanyService;
-import com.edinet.service.RevenueService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Configuration
 @SpringBootApplication
 @Controller // This means that this class is a Controller
 @RequestMapping(path="/edinet")
@@ -70,13 +69,13 @@ public class MainController extends SpringBootServletInitializer {
 	// 一時ファイル置き場の名前
 	final String temp = "temp";
 	// カレントディレクトリ
-	final String currentDir = new File(".").getAbsoluteFile().getParent() + temp + "/";
-	@Autowired
+	final String currentDir = new File(".").getAbsoluteFile().getParent() + "/" + temp + "/";
+
 	private AssetService assetService;
-	@Autowired
 	private CompanyService companyService;
-	@Autowired
 	private RevenueService revenueService;
+
+	final Logger logger = LogManager.getLogger(MainController.class.getName());
 
 	@GetMapping("/index")
 	public String index(Model model){
@@ -126,9 +125,6 @@ public class MainController extends SpringBootServletInitializer {
 		unzipFiles(reqDate);
 
 		dom();
-		//sax();
-		//registerData();
-		System.out.println(assetService.assetList().size());
 
 		return "Success! documents:" + docList.size();
 	}

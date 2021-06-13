@@ -1,4 +1,4 @@
-package com.edinet.service;
+package com.domain.services;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.edinet.model.RevenueEntity;
-import com.edinet.repository.RevenueRepository;
+import com.domain.models.RevenueEntity;
+import com.domain.repositories.RevenueRepository;
 
 @Service
 @Transactional
