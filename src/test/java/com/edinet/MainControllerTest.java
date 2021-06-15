@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.domain.services.GetDocIdListService;
 import com.edinet.controllers.MainController;
 import com.edinet.jacson.Result;
 
@@ -33,9 +34,10 @@ public class MainControllerTest {
 	@Test
 	public void test() throws IOException {
 		MainController mainController = new MainController();
+		GetDocIdListService getDocIdListService = new GetDocIdListService();
 		Mockito.when(mockUrl.openConnection()).thenReturn(mockCon);
 		Mockito.when(mockCon.getResponseCode()).thenReturn(null);
-		List<Result> docIdList = mainController.getDocIdList("2020-12-09");
+		List<Result> docIdList = getDocIdListService.getDocIdList("2020-12-09");
 		assertEquals(docIdList, null);
 	}
 }

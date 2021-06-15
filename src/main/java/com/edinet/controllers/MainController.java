@@ -1,7 +1,6 @@
 package com.edinet.controllers;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -9,12 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -44,10 +39,9 @@ import com.domain.models.CompanyEntity;
 import com.domain.models.RevenueEntity;
 import com.domain.services.AssetService;
 import com.domain.services.CompanyService;
+import com.domain.services.GetDocIdListService;
 import com.domain.services.RevenueService;
-import com.edinet.jacson.DocumentInfoList;
 import com.edinet.jacson.Result;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
 @Controller // This means that this class is a Controller
@@ -57,11 +51,11 @@ public class MainController extends SpringBootServletInitializer {
 	// EdinetAPIのURL
 	final String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";
 	// 府令コード
-	final String ordinanceCode = "010";
+	//final String ordinanceCode = "010";
 	// 有価証券コード
-	final String securitiesReport = "030000";
+	//final String securitiesReport = "030000";
 	// 四半期報告書コード
-	final String quarterlyReport = "043000";
+	//final String quarterlyReport = "043000";
 	// Read Data
 	byte[] b = new byte[4096];
 	// 拡張子xbrl
@@ -95,15 +89,19 @@ public class MainController extends SpringBootServletInitializer {
 		logger.info("-----starting getZipFile-----");
 		logger.debug("-----DEBUG starting getZipFile-----");
 		// 今日の日付を取得
-		Calendar date = Calendar.getInstance();
+		// Calendar date = Calendar.getInstance();
 		// 日付の形式(yyyy-MM-dd形式)
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		// リクエストする日付をフォーマット
-//		String reqDate = sdf.format(date.getTime());
+		//String reqDate = sdf.format(date.getTime());
 		String reqDate = "2020-12-09"; // TODO:確認用。あとで消す
 
-		// 書類一覧取得
-		List<Result> docList = getDocIdList(reqDate);
+		// 書類一覧取得 →別サービスへ
+		// List<Result> docList = getDocIdList(reqDate);
+
+		GetDocIdListService getDocIdListService = new GetDocIdListService();
+
+		List<Result> docList = getDocIdListService.getDocIdList(reqDate);
 
 		// 書類一覧が0件の場合や正常に取得できない場合は終了
 		if(docList.size() == 0) {
@@ -133,7 +131,7 @@ public class MainController extends SpringBootServletInitializer {
 	 * Edinetから書類一覧を取得する
 	 * @param date
 	 * @return
-	 */
+
 	public List<Result> getDocIdList(String date){
 
 		URL url;
@@ -173,6 +171,7 @@ public class MainController extends SpringBootServletInitializer {
 
 		return docIdList;
 	}
+	*/
 
 	/**
 	 * EdinetAPIを使用して、ZIPファイルをダウンロードする
@@ -220,7 +219,9 @@ public class MainController extends SpringBootServletInitializer {
 		}
 	}
 
-	// 有価証券報告書/四半期報告書の書類IDリストを返却する
+	/**
+	 *  有価証券報告書/四半期報告書の書類IDリストを返却する
+	 *
 	public List<Result> getTargetDocList(List<Result> docIdList){
 		// 処理対象ドキュメントリスト
 		List<Result> targetDocList = new ArrayList<Result>();
@@ -234,6 +235,7 @@ public class MainController extends SpringBootServletInitializer {
 		}
 		return targetDocList;
 	}
+	*/
 
 	/**
 	 * Zipファイルを展開
