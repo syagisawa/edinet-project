@@ -13,8 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.domain.services.GetDocIdListService;
-import com.edinet.controllers.MainController;
+import com.edinet.app.controllers.MainController;
+import com.edinet.domain.services.GetDocIdListService;
 import com.edinet.jacson.Result;
 
 public class MainControllerTest {

@@ -1,4 +1,4 @@
-package com.edinet.controllers;
+package com.edinet.app.controllers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

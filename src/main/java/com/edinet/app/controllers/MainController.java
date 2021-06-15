@@ -1,4 +1,4 @@
-package com.edinet.controllers;
+package com.edinet.app.controllers;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -34,13 +34,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.domain.models.AssetEntity;
-import com.domain.models.CompanyEntity;
-import com.domain.models.RevenueEntity;
-import com.domain.services.AssetService;
-import com.domain.services.CompanyService;
-import com.domain.services.GetDocIdListService;
-import com.domain.services.RevenueService;
+import com.edinet.domain.models.AssetEntity;
+import com.edinet.domain.models.CompanyEntity;
+import com.edinet.domain.models.RevenueEntity;
+import com.edinet.domain.services.AssetService;
+import com.edinet.domain.services.CompanyService;
+import com.edinet.domain.services.GetDocIdListService;
+import com.edinet.domain.services.RevenueService;
 import com.edinet.jacson.Result;
 
 @SpringBootApplication

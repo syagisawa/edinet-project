@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.edinet.controllers.CalculatorController;
+import com.edinet.app.controllers.CalculatorController;
 
 public class CalculatorTest {
 

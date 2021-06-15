@@ -1,4 +1,4 @@
-package com.domain.services;
+package com.edinet.domain.services;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.edinet.controllers.MainController;
+import com.edinet.app.controllers.MainController;
 import com.edinet.jacson.DocumentInfoList;
 import com.edinet.jacson.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;

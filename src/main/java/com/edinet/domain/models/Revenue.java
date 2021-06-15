@@ -1,4 +1,4 @@
-package com.domain.models;
+package com.edinet.domain.models;
 
 public class Revenue {
 	// 会社コード

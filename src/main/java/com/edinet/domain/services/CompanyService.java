@@ -1,4 +1,4 @@
-package com.domain.services;
+package com.edinet.domain.services;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.domain.models.CompanyEntity;
-import com.domain.repositories.CompanyRepository;
+import com.edinet.domain.models.CompanyEntity;
+import com.edinet.domain.repositories.CompanyRepository;
 
 @Service
 @Transactional

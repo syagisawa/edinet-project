@@ -1,4 +1,4 @@
-package com.domain.models;
+package com.edinet.domain.models;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
