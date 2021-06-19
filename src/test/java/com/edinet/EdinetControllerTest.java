@@ -13,11 +13,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.edinet.app.controllers.MainController;
-import com.edinet.domain.services.GetDocIdListService;
+import com.edinet.app.controllers.EdinetController;
+import com.edinet.domain.services.EdinetService;
 import com.edinet.jacson.Result;
 
-public class MainControllerTest {
+public class EdinetControllerTest {
 
 	@Mock
 	URL mockUrl;
@@ -33,8 +33,8 @@ public class MainControllerTest {
 
 	@Test
 	public void test() throws IOException {
-		MainController mainController = new MainController();
-		GetDocIdListService getDocIdListService = new GetDocIdListService();
+		EdinetController mainController = new EdinetController();
+		EdinetService getDocIdListService = new EdinetService();
 		Mockito.when(mockUrl.openConnection()).thenReturn(mockCon);
 		Mockito.when(mockCon.getResponseCode()).thenReturn(null);
 		List<Result> docIdList = getDocIdListService.getDocIdList("2020-12-09");

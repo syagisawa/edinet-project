@@ -1,15 +1,16 @@
-package com.edinet.app.controllers;
+package com.edinet.domain.services;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -20,88 +21,52 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.edinet.app.controllers.EdinetController;
 import com.edinet.domain.models.AssetEntity;
 import com.edinet.domain.models.CompanyEntity;
 import com.edinet.domain.models.RevenueEntity;
-import com.edinet.domain.services.AssetService;
-import com.edinet.domain.services.CompanyService;
-import com.edinet.domain.services.GetDocIdListService;
-import com.edinet.domain.services.RevenueService;
+import com.edinet.jacson.DocumentInfoList;
 import com.edinet.jacson.Result;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootApplication
-@Controller // This means that this class is a Controller
-@RequestMapping(path="/edinet")
-public class MainController extends SpringBootServletInitializer {
+@Service
+public class EdinetService  extends HttpConnectionBase{
 
+	// Log4j2
+	final Logger logger = LogManager.getLogger(EdinetController.class.getName());
 	// EdinetAPIのURL
-	final String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";
+	//final String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";
 	// 府令コード
-	//final String ordinanceCode = "010";
+	final String ordinanceCode = "010";
 	// 有価証券コード
-	//final String securitiesReport = "030000";
+	final String securitiesReport = "030000";
 	// 四半期報告書コード
-	//final String quarterlyReport = "043000";
+	final String quarterlyReport = "043000";
+	// 一時ファイル置き場の名前
+	final String temp = "temp";
+	// カレントディレクトリ
+	final String currentDir = new File(".").getAbsoluteFile().getParent() + "/";
 	// Read Data
 	byte[] b = new byte[4096];
 	// 拡張子xbrl
 	final String extension = ".xbrl";
-	// 一時ファイル置き場の名前
-	final String temp = "temp";
-	// カレントディレクトリ
-	final String currentDir = new File(".").getAbsoluteFile().getParent() + "/" + temp + "/";
 
-	private AssetService assetService;
-	private CompanyService companyService;
-	private RevenueService revenueService;
+	/**
+	 * EdinetからAPIを使用してZIPファイルを取得し、DBに登録する
+	 */
+	public String getEdinetData() {
 
-	final Logger logger = LogManager.getLogger(MainController.class.getName());
-
-	@GetMapping("/index")
-	public String index(Model model){
-		List<CompanyEntity> companyList = companyService.getCompanyList();
-		model.addAttribute("companyList", companyList);
-		model.addAttribute("assetEntity", new AssetEntity());
-		return "index";
-	}
-	@GetMapping("/news")
-	public String news(Model model){
-		return "news";
-	}
-
-	@GetMapping(path="/getZipFile")
-	public @ResponseBody String getEdinetData() throws Exception {
-
-		logger.info("-----starting getZipFile-----");
-		logger.debug("-----DEBUG starting getZipFile-----");
-		// 今日の日付を取得
-		// Calendar date = Calendar.getInstance();
-		// 日付の形式(yyyy-MM-dd形式)
-		// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		// リクエストする日付をフォーマット
-		//String reqDate = sdf.format(date.getTime());
 		String reqDate = "2020-12-09"; // TODO:確認用。あとで消す
 
-		// 書類一覧取得 →別サービスへ
-		// List<Result> docList = getDocIdList(reqDate);
-
-		GetDocIdListService getDocIdListService = new GetDocIdListService();
-
-		List<Result> docList = getDocIdListService.getDocIdList(reqDate);
+		// 書類ID一覧を取得
+		List<Result> docList = getDocIdList(reqDate);
 
 		// 書類一覧が0件の場合や正常に取得できない場合は終了
 		if(docList.size() == 0) {
@@ -110,11 +75,14 @@ public class MainController extends SpringBootServletInitializer {
 			return "Abnormal End. Check the Edinet Status.";
 		}
 
+
 		// 日付ディレクトリを作成
 		File dir = new File(currentDir + reqDate);
 		System.out.println("getPath:"+dir.getPath());
 		System.out.println("getAbsolutePath:"+dir.getAbsolutePath());
 		dir.mkdir();
+		File tempDir = new File(currentDir + temp);
+		tempDir.mkdir();
 
 		//-- 書類Zip取得処理
 		getZipFile(reqDate, docList);
@@ -131,19 +99,15 @@ public class MainController extends SpringBootServletInitializer {
 	 * Edinetから書類一覧を取得する
 	 * @param date
 	 * @return
+	 */
+	public List<Result> getDocIdList(String date) {
 
-	public List<Result> getDocIdList(String date){
-
-		URL url;
 		DocumentInfoList docInfoList = null;
 		List<Result> docIdList = null;
+		HttpURLConnection con = null;
 
 		try {
-			// 書類一覧取得用URL生成
-			url = generateUrl(baseUrl + "documents.json" + "?" + "date=" + date + "&" + "type=2");
-
-			// サーバへ接続
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con = getConnection(date, "documents.json" + "?" + "date=" + date + "&" + "type=2");
 
 			// HTTPステータスOKの場合に処理する
 			if(con.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -167,11 +131,27 @@ public class MainController extends SpringBootServletInitializer {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			con.disconnect();
 		}
 
 		return docIdList;
 	}
-	*/
+
+	// 有価証券報告書/四半期報告書の書類IDリストを返却する
+	public List<Result> getTargetDocList(List<Result> docIdList){
+		// 処理対象ドキュメントリスト
+		List<Result> targetDocList = new ArrayList<Result>();
+
+		for(Result result : docIdList) {
+			// 府令コードが10で、有価証券報告書/四半期報告書の場合
+			if(ordinanceCode.equals(result.getOrdinanceCode()) && securitiesReport.equals(result.getFormCode())
+					|| ordinanceCode.equals(result.getOrdinanceCode()) && quarterlyReport.equals(result.getFormCode())) {
+				targetDocList.add(result);
+			}
+		}
+		return targetDocList;
+	}
 
 	/**
 	 * EdinetAPIを使用して、ZIPファイルをダウンロードする
@@ -180,7 +160,7 @@ public class MainController extends SpringBootServletInitializer {
 	 */
 	public void getZipFile(String date ,List<Result> list) {
 
-		URL url;
+		HttpURLConnection con = null;
 		String zipName = null;
 		String docId = null;
 		int readByte = 0;
@@ -192,12 +172,11 @@ public class MainController extends SpringBootServletInitializer {
 				docId = result.getDocID();
 
 				// 書類データ取得URL
-				url = generateUrl(baseUrl + "documents" + "/" + docId + "?type=1");
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
+				con = getConnection(date, "documents" + "/" + docId + "?type=1");
+
 				// 日付ディレクトリ配下にzipファイルを格納
 				zipName = currentDir + date + "/" + docId + ".zip";
 				System.out.println("zipName:" + zipName);
-
 				DataInputStream dataInStream = new DataInputStream(con.getInputStream());
 				DataOutputStream dataOutStream =
 						new DataOutputStream(
@@ -216,26 +195,10 @@ public class MainController extends SpringBootServletInitializer {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			con.disconnect();
 		}
 	}
-
-	/**
-	 *  有価証券報告書/四半期報告書の書類IDリストを返却する
-	 *
-	public List<Result> getTargetDocList(List<Result> docIdList){
-		// 処理対象ドキュメントリスト
-		List<Result> targetDocList = new ArrayList<Result>();
-
-		for(Result result : docIdList) {
-			// 府令コードが10で、有価証券報告書/四半期報告書の場合
-			if(ordinanceCode.equals(result.getOrdinanceCode()) && securitiesReport.equals(result.getFormCode())
-					|| ordinanceCode.equals(result.getOrdinanceCode()) && quarterlyReport.equals(result.getFormCode())) {
-				targetDocList.add(result);
-			}
-		}
-		return targetDocList;
-	}
-	*/
 
 	/**
 	 * Zipファイルを展開
@@ -246,13 +209,10 @@ public class MainController extends SpringBootServletInitializer {
 		int len;
 		// ZIPファイル置き場のパス
 		System.out.println("currentDir:" + currentDir);
-		System.out.println("date:" + date);
-		File files = new File(currentDir + "/" + date);
+		File files = new File(currentDir + date);
 		File[] zipFileList = files.listFiles();
-
-		// tmepディレクトリを作成
-		File tempDir = new File(currentDir + temp);
-		tempDir.mkdir();
+		System.out.println("files:" + files);
+		System.out.println("zipFileList:" + zipFileList);
 
 		try {
 			// tempディレクトリへZIPファイルを展開
@@ -284,8 +244,6 @@ public class MainController extends SpringBootServletInitializer {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -293,11 +251,17 @@ public class MainController extends SpringBootServletInitializer {
 
 	// DOMでXBRLファイルを読み込む
 	public void dom() {
-		File[] xbrlFiles = new File(currentDir + "/" + temp).listFiles();
+		File[] xbrlFiles = new File(currentDir + temp).listFiles();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
 		AssetEntity assetEntity = new AssetEntity();
 		CompanyEntity companyEntity = new CompanyEntity();
 		RevenueEntity revenueEntity = new RevenueEntity();
+
+		AssetService assetService = new AssetService();
+		CompanyService companyService = new CompanyService();
+		RevenueService revenueService = new RevenueService();
+
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			for(File xbrl : xbrlFiles) {
@@ -365,29 +329,6 @@ public class MainController extends SpringBootServletInitializer {
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * 文字列からURLオブジェクトに変換する
-	 * @param url
-	 * @return
-	 * @throws Exception
-	 */
-	public URL generateUrl(String url) throws Exception {
-		return new URL(url);
-	}
-
-
-	@GetMapping("/result")
-	public String result(@ModelAttribute AssetEntity entity, Model model){
-		AssetEntity asset = assetService.getAssetByCompanyCode(entity.getCompanyCode());
-		CompanyEntity company = companyService.getCompanyDataByCompanyCode(entity.getCompanyCode());
-		RevenueEntity revenue = revenueService.getRevenueByCompanyCode(entity.getCompanyCode());
-		model.addAttribute("asset", asset);
-		model.addAttribute("companyCode", company.getCompanyCode());
-		model.addAttribute("companyName", company.getCompanyName());
-		model.addAttribute("revenue", revenue);
-		return "result";
 	}
 
 }
