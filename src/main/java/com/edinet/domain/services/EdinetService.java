@@ -21,6 +21,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,6 +59,21 @@ public class EdinetService  extends HttpConnectionBase{
 	// 拡張子xbrl
 	final String extension = ".xbrl";
 
+	@Autowired
+	private AssetEntity assetEntity;
+	@Autowired
+	private CompanyEntity companyEntity;
+	@Autowired
+	private RevenueEntity revenueEntity;
+	@Autowired
+	private AssetService assetService;
+	@Autowired
+	private CompanyService companyService;
+	@Autowired
+	private RevenueService revenueService;
+
+
+
 	/**
 	 * EdinetからAPIを使用してZIPファイルを取得し、DBに登録する
 	 */
@@ -78,8 +94,8 @@ public class EdinetService  extends HttpConnectionBase{
 
 		// 日付ディレクトリを作成
 		File dir = new File(currentDir + reqDate);
-		System.out.println("getPath:"+dir.getPath());
-		System.out.println("getAbsolutePath:"+dir.getAbsolutePath());
+		//System.out.println("getPath:"+dir.getPath());
+		//System.out.println("getAbsolutePath:"+dir.getAbsolutePath());
 		dir.mkdir();
 		File tempDir = new File(currentDir + temp);
 		tempDir.mkdir();
@@ -176,7 +192,7 @@ public class EdinetService  extends HttpConnectionBase{
 
 				// 日付ディレクトリ配下にzipファイルを格納
 				zipName = currentDir + date + "/" + docId + ".zip";
-				System.out.println("zipName:" + zipName);
+				//System.out.println("zipName:" + zipName);
 				DataInputStream dataInStream = new DataInputStream(con.getInputStream());
 				DataOutputStream dataOutStream =
 						new DataOutputStream(
@@ -208,11 +224,11 @@ public class EdinetService  extends HttpConnectionBase{
 	public void unzipFiles(String date) {
 		int len;
 		// ZIPファイル置き場のパス
-		System.out.println("currentDir:" + currentDir);
+		//System.out.println("currentDir:" + currentDir);
 		File files = new File(currentDir + date);
 		File[] zipFileList = files.listFiles();
-		System.out.println("files:" + files);
-		System.out.println("zipFileList:" + zipFileList);
+		//System.out.println("files:" + files);
+		//System.out.println("zipFileList:" + zipFileList);
 
 		try {
 			// tempディレクトリへZIPファイルを展開
@@ -253,14 +269,6 @@ public class EdinetService  extends HttpConnectionBase{
 	public void dom() {
 		File[] xbrlFiles = new File(currentDir + temp).listFiles();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-		AssetEntity assetEntity = new AssetEntity();
-		CompanyEntity companyEntity = new CompanyEntity();
-		RevenueEntity revenueEntity = new RevenueEntity();
-
-		AssetService assetService = new AssetService();
-		CompanyService companyService = new CompanyService();
-		RevenueService revenueService = new RevenueService();
 
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();

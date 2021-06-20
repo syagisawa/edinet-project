@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.edinet.domain.models.AssetEntity;
 
-
 @Repository
 public interface AssetRepository extends JpaRepository<AssetEntity,Integer> {
 

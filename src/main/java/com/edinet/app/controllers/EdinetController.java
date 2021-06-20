@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.stereotype.Controller;
@@ -28,9 +29,15 @@ public class EdinetController extends SpringBootServletInitializer {
 
 	// EdinetAPIのURL
 	final String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";
+	@Autowired
 	private AssetService assetService;
+	@Autowired
 	private CompanyService companyService;
+	@Autowired
 	private RevenueService revenueService;
+	@Autowired
+	private EdinetService edinetService;
+
 	final Logger logger = LogManager.getLogger(EdinetController.class.getName());
 
 	@GetMapping("/index")
@@ -58,7 +65,6 @@ public class EdinetController extends SpringBootServletInitializer {
 
 		// 書類一覧取得 →別サービスへ
 		// List<Result> docList = getDocIdList(reqDate);
-		EdinetService edinetService = new EdinetService();
 		String message = edinetService.getEdinetData();
 
 
