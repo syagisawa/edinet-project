@@ -1,9 +1,9 @@
-package com.edinet.domain.services;
+package com.edinet.domain.services.handler;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-abstract class HttpConnectionBase {
+public class HttpConnectionHandler {
 
 	// EdinetAPIのURL
 	final String baseUrl = "https://disclosure.edinet-fsa.go.jp/api/v1/";

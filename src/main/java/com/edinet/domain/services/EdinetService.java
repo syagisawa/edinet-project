@@ -33,12 +33,14 @@ import com.edinet.app.controllers.EdinetController;
 import com.edinet.domain.models.AssetEntity;
 import com.edinet.domain.models.CompanyEntity;
 import com.edinet.domain.models.RevenueEntity;
+import com.edinet.domain.services.handler.HttpConnectionHandler;
+import com.edinet.domain.services.utills.FileUtill;
 import com.edinet.jacson.DocumentInfoList;
 import com.edinet.jacson.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class EdinetService  extends HttpConnectionBase{
+public class EdinetService extends HttpConnectionHandler {
 
 	// Log4j2
 	final Logger logger = LogManager.getLogger(EdinetController.class.getName());
@@ -59,6 +61,8 @@ public class EdinetService  extends HttpConnectionBase{
 	// 拡張子xbrl
 	final String extension = ".xbrl";
 
+	@Autowired
+	private FileUtill fileUtill;
 	@Autowired
 	private AssetEntity assetEntity;
 	@Autowired
@@ -93,12 +97,11 @@ public class EdinetService  extends HttpConnectionBase{
 
 
 		// 日付ディレクトリを作成
-		File dir = new File(currentDir + reqDate);
+		fileUtill.makeDir(reqDate);
+		// 一時置き場を作成
+		fileUtill.makeDir(temp);
 		//System.out.println("getPath:"+dir.getPath());
 		//System.out.println("getAbsolutePath:"+dir.getAbsolutePath());
-		dir.mkdir();
-		File tempDir = new File(currentDir + temp);
-		tempDir.mkdir();
 
 		//-- 書類Zip取得処理
 		getZipFile(reqDate, docList);

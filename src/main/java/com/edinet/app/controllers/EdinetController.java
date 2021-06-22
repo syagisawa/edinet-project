@@ -23,7 +23,7 @@ import com.edinet.domain.services.EdinetService;
 import com.edinet.domain.services.RevenueService;
 
 @SpringBootApplication
-@Controller // This means that this class is a Controller
+@Controller
 @RequestMapping(path="/edinet")
 public class EdinetController extends SpringBootServletInitializer {
 
